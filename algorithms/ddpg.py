@@ -7,8 +7,6 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 from tqdm import tqdm
-import random
-import collections
 
 from utils.commons import set_seed
 from utils.buffers import DDPGReplayBuffer

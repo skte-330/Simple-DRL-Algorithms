@@ -1,71 +1,61 @@
 # Deep Reinforcement Learning Algorithms
 
-Clean PyTorch implementations of classical deep reinforcement learning algorithms. The current refactor starts from DQN and gradually migrates the legacy implementations into a unified training interface.
+Clean PyTorch implementations of classical deep reinforcement learning algorithms.
 
 ## Implemented Algorithms
 
 | Algorithm | Type | Action Space | Environment | Status |
 | --- | --- | --- | --- | --- |
-| DQN | Value-based | Discrete | CartPole-v1 | Migrated |
-| Double DQN | Value-based | Discrete | CartPole-v1 | Migrated |
-| Dueling DQN | Value-based | Discrete | CartPole-v1 | Migrated |
-| DDPG | Off-policy Actor-Critic | Continuous | Pendulum-v1 | Legacy |
-| PPO | Policy Optimization | Discrete | CartPole-v1 | Legacy |
-| SAC | Off-policy Actor-Critic | Continuous | Pendulum-v1 | Legacy |
-| TRPO | Trust-region Actor-Critic | Discrete | CartPole-v1 | Legacy |
+| DQN | Value-based | Discrete | CartPole-v1/Atari | Done |
+| Double DQN | Value-based | Discrete | CartPole-v1 | Done |
+| Dueling DQN | Value-based | Discrete | CartPole-v1 | Done |
+| DDPG | Off-policy Actor-Critic | Continuous | Pendulum-v1 | Done |
+| TRPO | Trust-region Actor-Critic | Discrete | CartPole-v1 | To be done |
+| PPO | Policy Optimization | Discrete | CartPole-v1 | To be done |
+| SAC | Off-policy Actor-Critic | Continuous | Pendulum-v1 | To be done |
 
 ## Highlights
 
 - Clean PyTorch implementations from scratch
 - Unified training entry point, starting with DQN
-- Configurable hyperparameters with YAML
 - Reproducible experiments with fixed random seeds
-- Training metrics saved as CSV for plotting and analysis
+- Training metrics saved as json for plotting and analysis
 
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
+## Dependency
+- Python 3.10-3.12
+- PyTorch
+- Openai gymnasium, and ale_py for atari
+- numpy, tqdm
 
 ## Quick Start
 
 Train vanilla DQN on CartPole:
 
 ```bash
-python scripts/train.py --algo dqn --config configs/dqn_cartpole.yaml
+python scripts/train_dqn.py 
 ```
 
 Train Double DQN:
 
 ```bash
-python scripts/train.py --algo dqn --config configs/dqn_cartpole.yaml --double-dqn
+python scripts/train_dqn.py --double-dqn
 ```
 
-Train Dueling DQN:
-
-```bash
-python scripts/train.py --algo dqn --config configs/dqn_cartpole.yaml --dueling-dqn
-```
-
-Each run saves `config.json`, `metrics.csv`, and `model.pt` under `runs/`.
+Each run saves `config.json`, `metrics.json` and `return_curve.png`  under `results/`.
 
 ## Project Structure
 
 ```text
-algorithms/     Migrated algorithm implementations
-utils/          Shared buffers and neural network modules
-configs/        Reproducible experiment configs
+algorithms/     Algorithm implementations
+utils/          Shared training utils
 scripts/        Command-line training entry points
-legacy/         Original exploratory implementations
-runs/           Local training outputs
+results/        Local training outputs
+checkpoints/    Model saving directory
 ```
 
-## Roadmap
+## TODOS
 
-- [x] Migrate DQN, Double DQN, and Dueling DQN into the new structure
-- [x] Add a basic command-line training entry point
-- [ ] Add plotting utilities for saved CSV metrics
-- [ ] Migrate PPO, DDPG, SAC, and TRPO
-- [ ] Add benchmark tables and learning curves
+- [ ] Implement TRPO, PPO and SAC
+- [ ] Add requirements.txt or uv.lock for environment setting
+- [ ] Add wandb logging
 - [ ] Add technical notes for each algorithm
