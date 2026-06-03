@@ -1,0 +1,5 @@
+torch
+gymnasium[classic-control]
+numpy
+tqdm
+PyYAML
