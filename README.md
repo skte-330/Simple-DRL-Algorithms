@@ -9,8 +9,8 @@ Clean PyTorch implementations of classical deep reinforcement learning algorithm
 | DQN/Double DQN/ Dueling DQN | Value-based | Discrete | CartPole-v1/Atari | Done |
 | DDPG | Off-policy Actor-Critic | Continuous | Pendulum-v1 | Done |
 | TRPO | Trust-region Actor-Critic | Discrete | CartPole-v1 | Done |
-| PPO | Policy Optimization | Discrete | CartPole-v1 | To be done |
-| SAC | Off-policy Actor-Critic | Continuous | Pendulum-v1 | To be done |
+| PPO | On-policy Actor-Critic | Discrete | CartPole-v1 | Done |
+| SAC | Off-policy Actor-Critic | Continuous | Pendulum-v1 | Done |
 
 ## Highlights
 
@@ -53,8 +53,9 @@ checkpoints/    Model saving directory
 
 ## TODOS
 
-- [ ] Implement TRPO, PPO and SAC
+- [x] Implement all algorithms
 - [ ] Add wandb logging
+- [ ] Support more environments in TRPO and PPO
 - [ ] Add evaluation and visualization from checkpoints
 - [ ] Add requirements.txt or uv.lock for environment setting
 - [ ] Add technical notes for each algorithm
