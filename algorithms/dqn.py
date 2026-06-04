@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 from tqdm import tqdm
 
+from utils.env import make_env
 from utils.buffers import ReplayBuffer
 from utils.commons import linear_schedule, set_seed
 
@@ -43,6 +44,7 @@ class DQNConfig:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
 
 # -----------------------------
 # Networks 
@@ -83,15 +85,11 @@ class DuelingMLP(nn.Module):
         V = self.V(h)
         A = self.A(h)
         return V + A - A.mean(dim=1, keepdim=True)
+    
 
-def make_env(env_id: str, seed: int | None = None):
-    print(f"Creating environment {env_id}.")
-    env = gym.make(env_id)
-    if seed is not None:
-        env.action_space.seed(seed)
-        env.observation_space.seed(seed)
-    return env
-
+# -----------------------------
+# DQN Agent
+# -----------------------------
 class DQNAgent:
     def __init__(self, cfg: DQNConfig):
         set_seed(cfg.seed)

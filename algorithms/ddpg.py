@@ -107,6 +107,9 @@ def soft_update(target_net: nn.Module, main_net: nn.Module, tau: float) -> None:
             target_param.data.copy_(tau * main_param.data + (1.0 - tau) * target_param.data)
 
 
+# -----------------------------
+# DDPG Agent
+# -----------------------------
 class DDPGAgent:
     def __init__(self, cfg: DDPGConfig):
         set_seed(cfg.seed)
