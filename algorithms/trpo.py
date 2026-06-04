@@ -9,7 +9,7 @@ from typing import Any
 from tqdm import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 
-from utils.commons import set_seed
+from utils.commons import set_seed, compute_gae
 from utils.env import make_env
 
 # -----------------------------
@@ -76,7 +76,7 @@ class ActorNetwork(nn.Module):
 
 
 class CriticNetwork(nn.Module):
-    """State-value function V(s)."""
+    """State-value Network V(s)."""
     def __init__(self, obs_dim: int, hidden_dim: int = 128):
         super().__init__()
         self.l1 = nn.Linear(obs_dim, hidden_dim)
@@ -87,35 +87,6 @@ class CriticNetwork(nn.Module):
         x = F.relu(self.l1(x))
         x = F.relu(self.l2(x))
         return self.l3(x)
-
-
-# -----------------------------
-# General Advantage Estimation
-# -----------------------------
-def compute_gae(
-    rewards: torch.Tensor,
-    values: torch.Tensor,
-    next_values: torch.Tensor,
-    dones: torch.Tensor,
-    gamma: float,
-    gae_lambda: float,
-) -> tuple[torch.Tensor, torch.Tensor]:
-    """
-    Compute Generalized Advantage Estimation.
-
-    delta_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
-    A_t = delta_t + gamma * lambda * (1 - done_t) * A_{t+1}
-    """
-    deltas = rewards + gamma * next_values * (1.0 - dones) - values
-    advantages = torch.zeros_like(values)
-
-    gae = torch.tensor(0.0, dtype=torch.float32, device=values.device)
-    for t in reversed(range(rewards.shape[0])):
-        gae = deltas[t] + gamma * gae_lambda * (1.0 - dones[t]) * gae
-        advantages[t] = gae
-
-    returns = advantages + values
-    return advantages, returns
 
 
 # -----------------------------

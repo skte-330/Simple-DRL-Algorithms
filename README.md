@@ -54,7 +54,8 @@ checkpoints/    Model saving directory
 ## TODOS
 
 - [ ] Implement TRPO, PPO and SAC
-- [ ] Add requirements.txt or uv.lock for environment setting
 - [ ] Add wandb logging
+- [ ] Add evaluation and visualization from checkpoints
+- [ ] Add requirements.txt or uv.lock for environment setting
 - [ ] Add technical notes for each algorithm
 - [ ] Add references
