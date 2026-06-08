@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from utils.commons import set_seed
 from utils.buffers import DDPGReplayBuffer
+from utils.commons import soft_update
 
 @dataclass
 class DDPGConfig:
@@ -98,13 +99,6 @@ def make_env(env_id: str, seed: int | None = None):
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
     return env
-
-
-def soft_update(target_net: nn.Module, main_net: nn.Module, tau: float) -> None:
-    """Polyak averaging: target = tau * main + (1 - tau) * target."""
-    with torch.no_grad():
-        for target_param, main_param in zip(target_net.parameters(), main_net.parameters()):
-            target_param.data.copy_(tau * main_param.data + (1.0 - tau) * target_param.data)
 
 
 # -----------------------------

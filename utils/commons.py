@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import torch
+import torch.nn as nn
 
 def linear_schedule(
     cur_step: int,
@@ -52,3 +53,9 @@ def compute_gae(
 
     returns = advantages + values
     return advantages, returns
+
+def soft_update(target_net: nn.Module, main_net: nn.Module, tau: float) -> None:
+    """Polyak averaging: target = tau * main + (1 - tau) * target."""
+    with torch.no_grad():
+        for target_param, main_param in zip(target_net.parameters(), main_net.parameters()):
+            target_param.data.copy_(tau * main_param.data + (1.0 - tau) * target_param.data)

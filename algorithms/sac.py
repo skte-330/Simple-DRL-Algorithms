@@ -12,6 +12,7 @@ from typing import Any, Tuple
 
 from utils.commons import set_seed 
 from utils.env import make_env
+from utils.commons import soft_update
 
 LOG_STD_MAX = 2.0
 LOG_STD_MIN = -20.0
@@ -149,14 +150,11 @@ class ReplayBuffer:
         dones = torch.as_tensor(np.asarray(dones, dtype=np.float32), device=device).view(-1, 1)
 
         return states, actions, rewards, next_states, dones
+    
 
-
-def soft_update(target_net: nn.Module, main_net: nn.Module, tau: float) -> None:
-    with torch.no_grad():
-        for target_param, main_param in zip(target_net.parameters(), main_net.parameters()):
-            target_param.data.copy_(tau * main_param.data + (1.0 - tau) * target_param.data)
-
-
+# -----------------------------
+# SAC Agent
+# -----------------------------
 class SACAgent:
     def __init__(self, cfg: SACConfig):
         set_seed(cfg.seed)
@@ -397,29 +395,6 @@ class SACAgent:
             )
 
         return metrics
-
-    @torch.no_grad()
-    def test_one_episode(self, deterministic: bool = True) -> float:
-        cfg = self.cfg
-
-        reset_seed = cfg.seed
-        state, _ = self.env.reset(seed=reset_seed)
-        if reset_seed is not None:
-            self.env.action_space.seed(reset_seed)
-
-        done = False
-        episode_return = 0.0
-
-        while not done:
-            action = self.select_action(state, explore=not deterministic)
-            next_state, reward, terminated, truncated, _ = self.env.step(action)
-            done = terminated or truncated
-
-            episode_return += float(reward)
-            state = next_state
-
-        print(f"episode_return: {episode_return}")
-        return episode_return
 
     def save(self, path: str | Path) -> None:
         print(f"Saving model to {path}.")

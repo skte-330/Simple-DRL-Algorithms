@@ -30,7 +30,7 @@ class PPOConfig:
     hidden_dim: int = 128
     actor_lr: float = 2.5e-4
     critic_lr: float = 2.5e-4
-    max_grad_norm: float = 0.5
+    max_grad_norm: float = 1.0
 
     # Training loop
     batch_size: int = 2048          # rollout length before each PPO update
@@ -101,16 +101,16 @@ class PPOAgent:
         self.global_step = 0
         self.episode = 0
 
+    def _as_state_tensor(self, state: np.ndarray) -> torch.Tensor:
+        return torch.as_tensor(state, dtype=torch.float32, device=self.device).view(1, -1)
+
     @torch.no_grad()
     def select_action(self, state_tensor: torch.Tensor, explore: bool = True) -> tuple[int, torch.Tensor, torch.Tensor]:
         """
         Returns:
             action: int
             log_prob: tensor scalar
-            value: tensor scalar
         """
-        state_tensor = state_tensor.view(1, -1)
-
         logits = self.actor(state_tensor)
         dist = torch.distributions.Categorical(logits=logits)
 
@@ -120,8 +120,7 @@ class PPOAgent:
             action_tensor = torch.argmax(logits, dim=-1)
 
         log_prob = dist.log_prob(action_tensor)
-        value = self.critic(state_tensor).squeeze(-1)
-        return int(action_tensor.item()), log_prob.squeeze(0), value.squeeze(0)
+        return int(action_tensor.item()), log_prob.squeeze(0)
 
     def update(self, rollout: dict[str, torch.Tensor]) -> dict[str, float]:
         cfg = self.cfg
@@ -235,10 +234,13 @@ class PPOAgent:
         iterator = tqdm(range(cfg.total_epochs), desc="PPO")
         for epoch in iterator:
             for step in range(cfg.batch_size):
-                state_tensor = torch.as_tensor(state, dtype=torch.float32, device=self.device).view(-1)
-                states[step] = state_tensor
+                state_tensor = self._as_state_tensor(state)
+                states[step] = state_tensor.squeeze(0)
 
-                action, log_prob, value = self.select_action(state_tensor, explore=True)
+                with torch.no_grad():
+                    action, log_prob = self.select_action(state_tensor, explore=True)
+                    value = self.critic(state_tensor).squeeze(-1)
+    
                 actions[step] = action
                 log_probs[step] = log_prob
                 values[step] = value
@@ -266,8 +268,8 @@ class PPOAgent:
                     state, _ = self.env.reset(seed=reset_seed)
 
             with torch.no_grad():
-                _, _, next_value = self.select_action(torch.as_tensor(state, dtype=torch.float32, device=self.device).view(-1), explore=True)
-            next_values = torch.cat([values[1:], torch.tensor([next_value], device=self.device)])
+                next_value = self.critic(self._as_state_tensor(state)).squeeze(-1)
+            next_values = torch.cat([values[1:], next_value])
 
             advantages, returns = compute_gae(
                 rewards=rewards,

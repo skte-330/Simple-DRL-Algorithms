@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument("--actor-lr", type=float, default=2.5e-4)
     parser.add_argument("--critic-lr", type=float, default=2.5e-4)
     parser.add_argument("--hidden-dim", type=int, default=128)
-    parser.add_argument("--max-grad-norm", type=float, default=0.5)
+    parser.add_argument("--max-grad-norm", type=float, default=1.0)
 
     parser.add_argument("--normalize-advantages", action="store_true", default=True)
     parser.add_argument("--no-normalize-advantages", dest="normalize_advantages", action="store_false")
